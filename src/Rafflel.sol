@@ -33,13 +33,16 @@ contract Raffle is VRFConsumerBaseV2Plus {
     uint32 private immutable i_callbackGasLimit;
     address payable[] private s_players;
     uint256 private s_lastTimestamp;
+    address private s_recentWinner;
 
     /* Events */
     event playerEntred(address indexed player);
+    event playerWon(address indexed winner);
 
     /* Errors */
     error Raffle__notEnoghEth();
     error Raffle__intervalNotPassed();
+    error Raffle__transferFailed();
 
     /* Modifiers */
 
@@ -85,7 +88,16 @@ contract Raffle is VRFConsumerBaseV2Plus {
         uint256 requestId = s_vrfCoordinator.requestRandomWords(request);
     }
 
-    function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal override {}
+    function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal override {
+        uint256 indexOfWinner = randomWords[0] % s_players.length;
+        s_recentWinner = payable(s_players[indexOfWinner]);
+        emit playerWon(s_recentWinner);
+
+        (bool success,) = s_recentWinner.call{value: address(this).balance}("");
+        if (!success) {
+            revert Raffle__transferFailed();
+        }
+    }
 
     function getEntranceFee() external view returns (uint256) {
         return i_entranceFee;
