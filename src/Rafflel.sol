@@ -107,13 +107,16 @@ contract Raffle is VRFConsumerBaseV2Plus {
     function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal override {
         uint256 indexOfWinner = randomWords[0] % s_players.length;
         s_recentWinner = payable(s_players[indexOfWinner]);
-        emit playerWon(s_recentWinner);
         s_raffleState = RaffleState.OPEN;
+        s_players = new address payable[](0);
+        s_lastTimestamp = block.timestamp;
 
         (bool success,) = s_recentWinner.call{value: address(this).balance}("");
         if (!success) {
             revert Raffle__TransferFailed();
         }
+
+        emit playerWon(s_recentWinner);
     }
 
     function getEntranceFee() external view returns (uint256) {
