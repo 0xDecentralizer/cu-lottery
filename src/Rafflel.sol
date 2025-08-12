@@ -52,6 +52,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
     error Raffle__IntervalNotPassed();
     error Raffle__TransferFailed();
     error Raffle__RaffleNotOpen();
+    error Raffle__UpkeepNotNeeded(uint256 balance, uint256 playersLenght, uint256 raffleState);
 
     /* Modifiers */
 
@@ -86,7 +87,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
         emit playerEntred(msg.sender);
     }
 
-    function checkUpkeep(bytes calldata /* checkData */ )
+    function checkUpkeep(bytes memory /* checkData */ )
         public
         view
         returns (bool upkeepNeeded, bytes memory /* performData */ )
@@ -100,9 +101,17 @@ contract Raffle is VRFConsumerBaseV2Plus {
         return (upkeepNeeded, "");
     }
 
-    function performCheckUpkeep(bytes calldata /* performData */) public {
+    function performCheckUpkeep(bytes calldata /* performData */) external {
         if ((block.timestamp - s_lastTimestamp) < i_interval) {
             revert Raffle__IntervalNotPassed();
+        }
+        (bool upkeepNeeded,) = checkUpkeep("");
+        if (!upkeepNeeded) {
+            revert Raffle__UpkeepNotNeeded(
+                address(this).balance,
+                s_players.length,
+                uint256(s_raffleState)
+            );
         }
 
         s_raffleState = RaffleState.CALCULATING;
