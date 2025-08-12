@@ -13,7 +13,7 @@ pragma solidity ^0.8.22;
 /* Imports */
 import {VRFConsumerBaseV2Plus} from "@chainlink/contracts/src/v0.8/dev/vrf/VRFConsumerBaseV2Plus.sol";
 import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/dev/vrf/libraries/VRFV2PlusClient.sol";
-import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/automation/AutomationCompatible.sol";
+// import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/automation/AutomationCompatible.sol";
 
 /* Interfaces */
 
@@ -93,11 +93,11 @@ contract Raffle is VRFConsumerBaseV2Plus {
         returns (bool upkeepNeeded, bytes memory /* performData */ )
     {
         bool isOpen = s_raffleState == RaffleState.OPEN;
-        bool isTimePassed = (block.timestamp - s_lastTimestamp) > i_interval;
+        bool isTimePassed = (block.timestamp - s_lastTimestamp) >= i_interval;
         bool hasBalance = address(this).balance > 0;
-        bool hasPlayer = s_players.length > 0;
+        bool hasPlayers = s_players.length > 0;
 
-        upkeepNeeded = isOpen && isTimePassed && hasBalance && hasPlayer;
+        upkeepNeeded = isOpen && isTimePassed && hasBalance && hasPlayers;
         return (upkeepNeeded, "");
     }
 
