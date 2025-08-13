@@ -57,7 +57,7 @@ contract HelperConfig is Script {
 
     function getConfig() public returns (NetworkConfig memory) {
         return getConfigByChainId(block.chainid);
-    } 
+    }
 
     function getOrCreateAnvilEthConfig() public returns (NetworkConfig memory) {
         if (localNetworkConfig.vrfCoordinator != address(0)) {
@@ -68,8 +68,7 @@ contract HelperConfig is Script {
         VRFCoordinatorV2Mock vrfCoordinatorV2Mock = new VRFCoordinatorV2Mock(MOCK_BASE_FEE, MOCK_GAS_PRICE_LINK);
         vm.stopBroadcast();
 
-        return NetworkConfig
-        ({
+        return NetworkConfig({
             entranceFee: 0.02 ether,
             interval: 30,
             vrfCoordinator: address(vrfCoordinatorV2Mock),
