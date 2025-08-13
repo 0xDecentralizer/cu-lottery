@@ -2,8 +2,6 @@
 pragma solidity ^0.8.22;
 
 contract HelperConfig {
-    uint256 constant SEPOLIA_CHAIN_ID = 11155111;
-
     struct NetworkConfig {
         uint256 entranceFee;
         uint256 interval;
@@ -13,6 +11,11 @@ contract HelperConfig {
         uint32 callbackGasLimit;
     }
 
+    uint256 public constant SEPOLIA_CHAIN_ID = 11155111;
+    uint256 public constant LOCAL_CHAIN_ID = 31337;
+    
+    error HelperConfig__InvalidChainId();
+    
     NetworkConfig private localNetworkConfig;
     mapping (uint256 chainId => NetworkConfig) public networkConfigs;
 
@@ -36,7 +39,13 @@ contract HelperConfig {
     }
 
     function getConfigByChainId(uint256 chainId) public view returns (NetworkConfig memory) {
-
+        if (networkConfigs[chainId].vrfCoordinator != address(0)) {
+            return networkConfigs[chainId];
+        } else if (chainId == LOCAL_CHAIN_ID) {
+            return localNetworkConfig;
+        } else {
+            revert HelperConfig__InvalidChainId();
+        }
     }
 
     function getOrCreateAnvilEthConfig() public returns (NetworkConfig memory) {
