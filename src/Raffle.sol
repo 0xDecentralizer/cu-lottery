@@ -101,17 +101,13 @@ contract Raffle is VRFConsumerBaseV2Plus {
         return (upkeepNeeded, "");
     }
 
-    function performCheckUpkeep(bytes calldata /* performData */) external {
+    function performCheckUpkeep(bytes calldata /* performData */ ) external {
         if ((block.timestamp - s_lastTimestamp) < i_interval) {
             revert Raffle__IntervalNotPassed();
         }
         (bool upkeepNeeded,) = checkUpkeep("");
         if (!upkeepNeeded) {
-            revert Raffle__UpkeepNotNeeded(
-                address(this).balance,
-                s_players.length,
-                uint256(s_raffleState)
-            );
+            revert Raffle__UpkeepNotNeeded(address(this).balance, s_players.length, uint256(s_raffleState));
         }
 
         s_raffleState = RaffleState.CALCULATING;
