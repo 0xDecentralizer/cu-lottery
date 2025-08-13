@@ -10,9 +10,9 @@ contract HelperConfig {
         uint256 subscriptionId;
         uint32 callbackGasLimit;
     }
-    NetworkConfig private networkConfig;
 
-    mapping (uint256 chainId => NetworkConfig) networkConfigs;
+    NetworkConfig private localNetworkConfig;
+    mapping (uint256 chainId => NetworkConfig) public networkConfigs;
 
     constructor() {}
 
@@ -25,7 +25,11 @@ contract HelperConfig {
     }
 
     function getConfigByChainId(uint256 chainId) public view returns (NetworkConfig memory) {
-        
+
+    }
+
+    function getOrCreateAnvilEthConfig() public returns (NetworkConfig memory) {
+
     }
  
 
