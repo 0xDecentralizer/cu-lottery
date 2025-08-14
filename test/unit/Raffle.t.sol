@@ -33,8 +33,18 @@ contract TestRaffle is Test {
         callbackGasLimit = config.callbackGasLimit;
     }
 
-    function testRaffleInitialState() public view {
+    function test_RaffleInitialState() public view {
         assert(raffle.getState() == Raffle.RaffleState.OPEN);
     }
+
+    function testRevert_enterWithInsufficientFund() public {
+        vm.prank(PLAYER);
+        vm.deal(PLAYER, 1 ether);
+        vm.expectRevert(Raffle.Raffle__NotEnoghEth.selector);
+        raffle.enterRaffle{value: 1}();
+        // address(raffle).call{value: 1}(abi.encodeWithSignature("enterRaffle()"));
+    }
+
+    function test
 
 }
