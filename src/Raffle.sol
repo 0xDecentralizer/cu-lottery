@@ -101,7 +101,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
         return (upkeepNeeded, "");
     }
 
-    function performCheckUpkeep(bytes calldata /* performData */ ) external {
+    function performUpkeep(bytes calldata /* performData */ ) external {
         if ((block.timestamp - s_lastTimestamp) < i_interval) {
             revert Raffle__IntervalNotPassed();
         }
