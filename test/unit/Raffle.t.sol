@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.22;
 
-import {Test} from "forge-std/Test.sol";
+import {Test, console} from "forge-std/Test.sol";
 import {Raffle} from "src/Raffle.sol";
 import {DeployRaffle} from "script/Raffle.s.sol";
 import {HelperConfig} from "script/HelperConfig.s.sol";
@@ -31,6 +31,8 @@ contract TestRaffle is Test {
         gasLane = config.gasLane;
         subscriptionId = config.subscriptionId;
         callbackGasLimit = config.callbackGasLimit;
+
+        vm.deal(PLAYER, STARTING_PLAYER_BALANCE);
     }
 
     function test_RaffleInitialState() public view {
@@ -39,17 +41,19 @@ contract TestRaffle is Test {
 
     function testRevert_enterWithInsufficientFund() public {
         vm.prank(PLAYER);
-        vm.deal(PLAYER, STARTING_PLAYER_BALANCE);
         vm.expectRevert(Raffle.Raffle__NotEnoghEth.selector);
         raffle.enterRaffle{value: 1}();
         // address(raffle).call{value: 1}(abi.encodeWithSignature("enterRaffle()"));
     }
 
-    function test_PlayerEnteredTheRaffle() public {
+    function test_RaffleRecordPlayersWhenTheyEnter() public {
         vm.prank(PLAYER);
-        vm.deal(PLAYER, STARTING_PLAYER_BALANCE);
-        raffle.enterRaffle{value: 2 ether}();
+        vm.expectEmit();
+        emit Raffle.playerEntred(PLAYER);
+        raffle.enterRaffle{value: 1 ether}();
 
+        address playerRecord = raffle.getPlayer(0);
         assertEq(raffle.getPlayrsLength(), 1);
+        assertEq(playerRecord, PLAYER);
     }
 }
