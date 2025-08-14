@@ -18,7 +18,7 @@ contract TestRaffle is Test {
     uint32 callbackGasLimit;
     
     address public PLAYER = makeAddr("player");
-    uint256 public constant STARTING_PLAYER_BALANCE = 10;
+    uint256 public constant STARTING_PLAYER_BALANCE = 10 ether;
     
     function setUp() external {
         DeployRaffle deployer = new DeployRaffle();
@@ -39,12 +39,17 @@ contract TestRaffle is Test {
 
     function testRevert_enterWithInsufficientFund() public {
         vm.prank(PLAYER);
-        vm.deal(PLAYER, 1 ether);
+        vm.deal(PLAYER, STARTING_PLAYER_BALANCE);
         vm.expectRevert(Raffle.Raffle__NotEnoghEth.selector);
         raffle.enterRaffle{value: 1}();
         // address(raffle).call{value: 1}(abi.encodeWithSignature("enterRaffle()"));
     }
 
-    function test
+    function test_PlayerEnteredTheRaffle() public {
+        vm.prank(PLAYER);
+        vm.deal(PLAYER, STARTING_PLAYER_BALANCE);
+        raffle.enterRaffle{value: 2 ether}();
 
+        assertEq(raffle.getPlayrsLength(), 1);
+    }
 }
