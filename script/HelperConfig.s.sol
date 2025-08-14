@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: SEE LICENSE IN LICENSE
 pragma solidity ^0.8.22;
 
-import {VRFCoordinatorV2Mock} from "@chainlink/contracts/src/v0.8/mocks/VRFCoordinatorV2Mock.sol";
+import {VRFCoordinatorV2_5Mock} from "@chainlink/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
 import {Script} from "forge-std/Script.sol";
 
 contract HelperConfig is Script {
@@ -17,6 +17,7 @@ contract HelperConfig is Script {
     // Mock Values
     uint96 public constant MOCK_BASE_FEE = 0.02 ether;
     uint96 public constant MOCK_GAS_PRICE_LINK = 1e9;
+    int256 public constant MOCK_WEI_PER_UNIT_LINK = 5e15;
 
     uint256 public constant SEPOLIA_CHAIN_ID = 11155111;
     uint256 public constant LOCAL_CHAIN_ID = 31337;
@@ -65,7 +66,7 @@ contract HelperConfig is Script {
         }
 
         vm.startBroadcast();
-        VRFCoordinatorV2Mock vrfCoordinatorV2Mock = new VRFCoordinatorV2Mock(MOCK_BASE_FEE, MOCK_GAS_PRICE_LINK);
+        VRFCoordinatorV2_5Mock vrfCoordinatorV2Mock = new VRFCoordinatorV2_5Mock(MOCK_BASE_FEE, MOCK_GAS_PRICE_LINK, MOCK_WEI_PER_UNIT_LINK);
         vm.stopBroadcast();
 
         return NetworkConfig({
