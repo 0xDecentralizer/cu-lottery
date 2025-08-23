@@ -7,24 +7,19 @@ import {VRFCoordinatorV2_5Mock} from "@chainlink/contracts/src/v0.8/vrf/mocks/VR
 import {LinkToken} from "test/mocks/LinkToken.sol";
 
 contract CreateSubscription is Script {
-    HelperConfig public helperConfig;
-    
-    constructor() {
-        helperConfig = new HelperConfig();
-    }
     
     function run() public {
         createSubscriptionUsingConfig();
     }
     
     function createSubscriptionUsingConfig() public returns (uint256) {
-        // HelperConfig helperConfig = new HelperConfig();
+        HelperConfig helperConfig = new HelperConfig();
         address vrfCoordinator = helperConfig.getConfig().vrfCoordinator;
         return createSubscription(vrfCoordinator);
     }
     
     function createSubscription(address vrfCoordinator) public returns (uint256) {
-        console.log("Creating subscription on chainIS: ", block.chainid);
+        console.log("Creating subscription on chainIDD: ", block.chainid);
         
         vm.roll(block.number + 10);
         vm.startBroadcast();
@@ -38,34 +33,20 @@ contract CreateSubscription is Script {
 }
 
 contract FundSubscription is Script, HelperConfig {
-    HelperConfig public helperConfig;
-    
-    constructor() {
-        helperConfig = new HelperConfig();
-    }
 
     function fundSubscriptionUsingConfig() public {
-        // HelperConfig helperConfig = new HelperConfig();
+        HelperConfig helperConfig = new HelperConfig();
         address vrfCoordinator = helperConfig.getConfig().vrfCoordinator;
         uint256 subscriptionId = helperConfig.getConfig().subscriptionId;
-        // VRFCoordinatorV2_5Mock(vrfCoordinator).fundSubscription(subscriptionId, 3 ether);
         address linkToken = helperConfig.getConfig().link;
-        
-        if (block.chainid == LOCAL_CHAIN_ID) {
+
+        if (subscriptionId == 0) {
             CreateSubscription createSub = new CreateSubscription();
-            uint256 subId = createSub.createSubscription(vrfCoordinator);
-            fundSubscription(vrfCoordinator, subId, linkToken);
-            console.log("SSubId Created: ", subId);
-        } else {
-            uint256 subId = helperConfig.getConfig().subscriptionId;
-            if (subId == 0) {
-                CreateSubscription createSub = new CreateSubscription();
-                subId = createSub.createSubscription(vrfCoordinator);
-            }
-            fundSubscription(vrfCoordinator, subId, linkToken);
+            (uint256 updatedSubId) = createSub.createSubscriptionUsingConfig();
+            subscriptionId = updatedSubId;
+            console.log("Updated sub Id is: ", subscriptionId);
         }
-        
-        
+                
         fundSubscription(vrfCoordinator, subscriptionId, linkToken);
 
     }
@@ -75,6 +56,7 @@ contract FundSubscription is Script, HelperConfig {
         console.log("Using vrfCoordinator: ", vrfCoordinator);
         console.log("On chainID: ", block.chainid);
         if (block.chainid == LOCAL_CHAIN_ID) {
+            console.log("sub Id is: ", subscriptionId);
             vm.startBroadcast();
             VRFCoordinatorV2_5Mock(vrfCoordinator).fundSubscription(subscriptionId, 3 ether);
             vm.stopBroadcast();
@@ -88,3 +70,4 @@ contract FundSubscription is Script, HelperConfig {
         fundSubscriptionUsingConfig();
     }
 }
+
