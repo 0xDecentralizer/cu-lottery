@@ -78,12 +78,20 @@ contract TestRaffle is Test {
 
     // ==== Check Upkeep ====
 
-    function test_CheckUpkeepReturnsFalseWhenTheRaffleIsClosed() public {
+    function test_CheckUpkeepReturnsFalseWhenTheRaffleIsNotOpen() public {
         vm.prank(PLAYER);
         raffle.enterRaffle{value: 1 ether}();
         vm.warp(block.timestamp + interval + 1);
         vm.roll(block.number + 1);
         raffle.performUpkeep("");
+        (bool upkeepNeeded, ) = raffle.checkUpkeep("");
+
+        assertFalse(upkeepNeeded);
+    }
+
+    function CheckUpkeepReturnsFalseWhenTheIntervalNotPassed() public {
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: 1 ether}();
         (bool upkeepNeeded, ) = raffle.checkUpkeep("");
 
         assertFalse(upkeepNeeded);
