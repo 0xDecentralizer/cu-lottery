@@ -104,7 +104,18 @@ contract TestRaffle is Test {
         vm.roll(block.number + 1);
         
         (bool upkeepNeeded, ) = raffle.checkUpkeep("");
-
+        
         assertFalse(upkeepNeeded);
     }
+    
+    // ==== Perorm Upkeep ====
+    function testRevert_PerformUpkeepCanOnlyRunIfCheckUpkeepIsTrue() public {
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: 1 ether}();
+        vm.warp(block.timestamp + interval + 1);
+        vm.roll(block.number + 1);
+
+        raffle.performUpkeep("");
+    }
+    
 }
