@@ -38,6 +38,9 @@ contract TestRaffle is Test {
         vm.deal(PLAYER, STARTING_PLAYER_BALANCE);
     }
 
+
+    // ==== Enter Raffle ====
+
     function test_RaffleInitialState() public view {
         assert(raffle.getState() == Raffle.RaffleState.OPEN);
     }
@@ -70,5 +73,19 @@ contract TestRaffle is Test {
         vm.prank(PLAYER);
         vm.expectRevert(Raffle.Raffle__RaffleNotOpen.selector);
         raffle.enterRaffle{value: 1 ether}();
+    }
+
+
+    // ==== Check Upkeep ====
+
+    function test_CheckUpkeepReturnsFalseWhenTheRaffleIsClosed() public {
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: 1 ether}();
+        vm.warp(block.timestamp + interval + 1);
+        vm.roll(block.number + 1);
+        raffle.performUpkeep("");
+        (bool upkeepNeeded, ) = raffle.checkUpkeep("");
+
+        assertFalse(upkeepNeeded);
     }
 }
