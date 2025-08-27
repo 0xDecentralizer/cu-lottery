@@ -133,7 +133,20 @@ contract TestRaffle is Test {
 
         raffle.performUpkeep("");
 
-        uint256 state = uint256(raffle.getState());
-        assertEq(state, 1); // 0 = OPEN , 1 = CALCULATING
+        uint256 rState = uint256(raffle.getState());
+        assertEq(rState, 1); // 0 = OPEN , 1 = CALCULATING
+    }
+
+    function testRevert_PerformUpkeepRevertsIfCheckUpkeepIsFalse() public {
+        uint256 currentBalance = 0;
+        uint256 numPlayers = 0;
+        Raffle.RaffleState rState = raffle.getState();
+
+        vm.warp(block.timestamp + interval + 1);
+        vm.roll(block.number + 1);
+
+        vm.expectRevert(abi.encodeWithSelector(Raffle.Raffle__UpkeepNotNeeded.selector, currentBalance, numPlayers, rState));
+        raffle.performUpkeep("");
+
     }
 }
