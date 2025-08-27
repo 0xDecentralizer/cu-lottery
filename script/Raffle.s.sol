@@ -20,7 +20,7 @@ contract DeployRaffle is Script, HelperConfig {
             FundSubscription fundSub = new FundSubscription();
             fundSub.fundSubscription(config.vrfCoordinator, config.subscriptionId, config.link);
         }
-        
+
         vm.startBroadcast();
         Raffle raffle = new Raffle(
             config.entranceFee,

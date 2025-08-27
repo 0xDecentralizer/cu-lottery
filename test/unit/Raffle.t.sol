@@ -38,7 +38,6 @@ contract TestRaffle is Test {
         vm.deal(PLAYER, STARTING_PLAYER_BALANCE);
     }
 
-
     // ==== Enter Raffle ====
 
     function test_RaffleInitialState() public view {
@@ -69,12 +68,11 @@ contract TestRaffle is Test {
         vm.warp(block.timestamp + interval + 1);
         vm.roll(block.number + 1);
         raffle.performUpkeep("");
-        
+
         vm.prank(PLAYER);
         vm.expectRevert(Raffle.Raffle__RaffleNotOpen.selector);
         raffle.enterRaffle{value: 1 ether}();
     }
-
 
     // ==== Check Upkeep ====
 
@@ -84,30 +82,30 @@ contract TestRaffle is Test {
         vm.warp(block.timestamp + interval + 1);
         vm.roll(block.number + 1);
         raffle.performUpkeep("");
-        (bool upkeepNeeded, ) = raffle.checkUpkeep("");
-        
+        (bool upkeepNeeded,) = raffle.checkUpkeep("");
+
         assertFalse(upkeepNeeded);
     }
-    
+
     function CheckUpkeepReturnsFalseWhenTheIntervalNotPassed() public {
         vm.prank(PLAYER);
         raffle.enterRaffle{value: 1 ether}();
-        (bool upkeepNeeded, ) = raffle.checkUpkeep("");
-        
+        (bool upkeepNeeded,) = raffle.checkUpkeep("");
+
         assertFalse(upkeepNeeded);
     }
-    
+
     function CheckUpkeepReturnsFalseWhenBalanceIsZero() public {
         vm.prank(PLAYER);
         raffle.enterRaffle{value: 1 ether}();
         vm.warp(block.timestamp + interval + 1);
         vm.roll(block.number + 1);
-        
-        (bool upkeepNeeded, ) = raffle.checkUpkeep("");
-        
+
+        (bool upkeepNeeded,) = raffle.checkUpkeep("");
+
         assertFalse(upkeepNeeded);
     }
-    
+
     // ==== Perorm Upkeep ====
     function testRevert_PerformUpkeepCanOnlyRunIfCheckUpkeepIsTrue() public {
         vm.prank(PLAYER);
@@ -115,7 +113,8 @@ contract TestRaffle is Test {
         vm.warp(block.timestamp + interval + 1);
         vm.roll(block.number + 1);
 
-        raffle.performUpkeep("");
+        (bool success, ) = address(raffle).call(abi.encodeWithSelector(Raffle.performUpkeep.selector, ""));
+        assertTrue(success);
+        // raffle.performUpkeep("");
     }
-    
 }

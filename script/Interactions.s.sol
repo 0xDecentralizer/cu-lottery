@@ -8,25 +8,24 @@ import {LinkToken} from "test/mocks/LinkToken.sol";
 import {DevOpsTools} from "lib/foundry-devops/src/DevOpsTools.sol";
 
 contract CreateSubscription is Script {
-    
     function run() public {
         createSubscriptionUsingConfig();
     }
-    
+
     function createSubscriptionUsingConfig() public returns (uint256) {
         HelperConfig helperConfig = new HelperConfig();
         address vrfCoordinator = helperConfig.getConfig().vrfCoordinator;
         return createSubscription(vrfCoordinator);
     }
-    
+
     function createSubscription(address vrfCoordinator) public returns (uint256) {
         console.log("Creating subscription on chainIDD: ", block.chainid);
-        
+
         vm.roll(block.number + 10);
         vm.startBroadcast();
         uint256 subId = VRFCoordinatorV2_5Mock(vrfCoordinator).createSubscription();
         vm.stopBroadcast();
-        
+
         console.log("Your sub id:", subId);
         console.log("Now UPDATE subscriptionId in HelperConfig!");
         return subId;
@@ -34,7 +33,6 @@ contract CreateSubscription is Script {
 }
 
 contract FundSubscription is Script, HelperConfig {
-
     function fundSubscriptionUsingConfig() public {
         HelperConfig helperConfig = new HelperConfig();
         address vrfCoordinator = helperConfig.getConfig().vrfCoordinator;
@@ -47,11 +45,10 @@ contract FundSubscription is Script, HelperConfig {
             subscriptionId = updatedSubId;
             console.log("Updated sub Id is: ", subscriptionId);
         }
-                
-        fundSubscription(vrfCoordinator, subscriptionId, linkToken);
 
+        fundSubscription(vrfCoordinator, subscriptionId, linkToken);
     }
-    
+
     function fundSubscription(address vrfCoordinator, uint256 subscriptionId, address linkToken) public {
         console.log("Funding subscription: ", subscriptionId);
         console.log("Using vrfCoordinator: ", vrfCoordinator);
@@ -67,6 +64,7 @@ contract FundSubscription is Script, HelperConfig {
             vm.stopBroadcast();
         }
     }
+
     function run() public {
         fundSubscriptionUsingConfig();
     }
@@ -77,7 +75,7 @@ contract AddConsumer is Script {
         HelperConfig helperConfig = new HelperConfig();
         uint256 subId = helperConfig.getConfig().subscriptionId;
         address vrfCoordinator = helperConfig.getConfig().vrfCoordinator;
-        
+
         addConsumer(mostRecentDeployment, subId, vrfCoordinator);
     }
 
