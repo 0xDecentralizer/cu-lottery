@@ -38,10 +38,11 @@ contract TestRaffle is Test {
         vm.deal(PLAYER, STARTING_PLAYER_BALANCE);
     }
 
-    /** ======================
+    /**
+     * ======================
      *  ==== Enter Raffle ====
      *  ======================
-    */ 
+     */
     function test_RaffleInitialState() public view {
         assert(raffle.getState() == Raffle.RaffleState.OPEN);
     }
@@ -76,10 +77,11 @@ contract TestRaffle is Test {
         raffle.enterRaffle{value: 1 ether}();
     }
 
-    /** ======================
+    /**
+     * ======================
      *  ==== Check Upkeep ====
      *  ======================
-    */
+     */
     function test_CheckUpkeepReturnsFalseWhenTheRaffleIsNotOpen() public {
         vm.prank(PLAYER);
         raffle.enterRaffle{value: 1 ether}();
@@ -110,17 +112,18 @@ contract TestRaffle is Test {
         assertFalse(upkeepNeeded);
     }
 
-    /** =======================
+    /**
+     * =======================
      *  ==== Perorm Upkeep ====
      *  =======================
-    */ 
+     */
     function test_PerformUpkeepCanOnlyRunIfCheckUpkeepIsTrue() public {
         vm.prank(PLAYER);
         raffle.enterRaffle{value: 1 ether}();
         vm.warp(block.timestamp + interval + 1);
         vm.roll(block.number + 1);
 
-        (bool success, ) = address(raffle).call(abi.encodeWithSelector(Raffle.performUpkeep.selector, ""));
+        (bool success,) = address(raffle).call(abi.encodeWithSelector(Raffle.performUpkeep.selector, ""));
         assertTrue(success);
         // raffle.performUpkeep("");
     }
@@ -139,14 +142,17 @@ contract TestRaffle is Test {
 
     function testRevert_PerformUpkeepRevertsIfCheckUpkeepIsFalse() public {
         uint256 currentBalance = 0;
-        uint256 numPlayers = 0;
+        uint256 numPlayers;
         Raffle.RaffleState rState = raffle.getState();
 
-        vm.warp(block.timestamp + interval + 1);
-        vm.roll(block.number + 1);
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: 1 ether}();
+        currentBalance += 1 ether;
+        numPlayers = raffle.getPlayrsLength();
 
-        vm.expectRevert(abi.encodeWithSelector(Raffle.Raffle__UpkeepNotNeeded.selector, currentBalance, numPlayers, rState));
+        vm.expectRevert(
+            abi.encodeWithSelector(Raffle.Raffle__UpkeepNotNeeded.selector, currentBalance, numPlayers, rState)
+        );
         raffle.performUpkeep("");
-
     }
 }
