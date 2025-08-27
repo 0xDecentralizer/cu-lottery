@@ -114,7 +114,7 @@ contract TestRaffle is Test {
      *  ==== Perorm Upkeep ====
      *  =======================
     */ 
-    function testRevert_PerformUpkeepCanOnlyRunIfCheckUpkeepIsTrue() public {
+    function test_PerformUpkeepCanOnlyRunIfCheckUpkeepIsTrue() public {
         vm.prank(PLAYER);
         raffle.enterRaffle{value: 1 ether}();
         vm.warp(block.timestamp + interval + 1);
@@ -123,5 +123,17 @@ contract TestRaffle is Test {
         (bool success, ) = address(raffle).call(abi.encodeWithSelector(Raffle.performUpkeep.selector, ""));
         assertTrue(success);
         // raffle.performUpkeep("");
+    }
+
+    function test_RaffleStateShouldBeCalculatingWhenCallThePerformUpkeep() public {
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: 1 ether}();
+        vm.warp(block.timestamp + interval + 1);
+        vm.roll(block.number + 1);
+
+        raffle.performUpkeep("");
+
+        uint256 state = uint256(raffle.getState());
+        assertEq(state, 1); // 0 = OPEN , 1 = CALCULATING
     }
 }
