@@ -38,8 +38,10 @@ contract TestRaffle is Test {
         vm.deal(PLAYER, STARTING_PLAYER_BALANCE);
     }
 
-    // ==== Enter Raffle ====
-
+    /** ======================
+     *  ==== Enter Raffle ====
+     *  ======================
+    */ 
     function test_RaffleInitialState() public view {
         assert(raffle.getState() == Raffle.RaffleState.OPEN);
     }
@@ -74,8 +76,10 @@ contract TestRaffle is Test {
         raffle.enterRaffle{value: 1 ether}();
     }
 
-    // ==== Check Upkeep ====
-
+    /** ======================
+     *  ==== Check Upkeep ====
+     *  ======================
+    */
     function test_CheckUpkeepReturnsFalseWhenTheRaffleIsNotOpen() public {
         vm.prank(PLAYER);
         raffle.enterRaffle{value: 1 ether}();
@@ -106,7 +110,10 @@ contract TestRaffle is Test {
         assertFalse(upkeepNeeded);
     }
 
-    // ==== Perorm Upkeep ====
+    /** =======================
+     *  ==== Perorm Upkeep ====
+     *  =======================
+    */ 
     function testRevert_PerformUpkeepCanOnlyRunIfCheckUpkeepIsTrue() public {
         vm.prank(PLAYER);
         raffle.enterRaffle{value: 1 ether}();
