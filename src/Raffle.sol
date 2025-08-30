@@ -46,6 +46,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
     /* Events */
     event playerEntred(address indexed player);
     event playerWon(address indexed winner);
+    event RequestedRaffleWinner(uint256 indexed requestId);
 
     /* Errors */
     error Raffle__NotEnoghEth();
@@ -119,6 +120,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
         });
 
         uint256 requestId = s_vrfCoordinator.requestRandomWords(request);
+        emit RequestedRaffleWinner(requestId);
     }
 
     function fulfillRandomWords(uint256 requestId, uint256[] calldata randomWords) internal override {

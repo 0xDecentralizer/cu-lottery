@@ -6,6 +6,7 @@ import {Raffle} from "src/Raffle.sol";
 import {DeployRaffle} from "script/Raffle.s.sol";
 import {HelperConfig} from "script/HelperConfig.s.sol";
 import {LinkToken} from "test/mocks/LinkToken.sol";
+import {Vm} from "forge-std/Vm.sol";
 
 contract TestRaffle is Test {
     Raffle public raffle;
@@ -154,5 +155,20 @@ contract TestRaffle is Test {
             abi.encodeWithSelector(Raffle.Raffle__UpkeepNotNeeded.selector, currentBalance, numPlayers, rState)
         );
         raffle.performUpkeep("");
+    }
+
+    function testPerfomUpkeepUpdatesRaffleStateAndEmitsRequestId() public {
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: 1 ether}();
+        vm.warp(block.timestamp + interval + 1);
+        vm.roll(block.number + 1);
+
+        vm.recordLogs();
+        raffle.performUpkeep("");
+        Vm.Log[] memory entries = vm.getRecordedLogs();
+        uint256 requestId = uint256(entries[1].topics[1]);
+        Raffle.RaffleState rState = raffle.getState();
+        assertGt(requestId, 0);
+        assertEq(uint256(rState), 1);
     }
 }
