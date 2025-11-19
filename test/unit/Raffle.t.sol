@@ -7,6 +7,7 @@ import {DeployRaffle} from "script/Raffle.s.sol";
 import {HelperConfig} from "script/HelperConfig.s.sol";
 import {LinkToken} from "test/mocks/LinkToken.sol";
 import {Vm} from "forge-std/Vm.sol";
+import {VRFCoordinatorV2_5Mock} from  "@chainlink/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
 
 contract TestRaffle is Test {
     Raffle public raffle;
@@ -40,7 +41,7 @@ contract TestRaffle is Test {
     }
 
     /**
-     * ======================
+     *  ======================
      *  ==== Enter Raffle ====
      *  ======================
      */
@@ -79,7 +80,7 @@ contract TestRaffle is Test {
     }
 
     /**
-     * ======================
+     *  ======================
      *  ==== Check Upkeep ====
      *  ======================
      */
@@ -114,7 +115,7 @@ contract TestRaffle is Test {
     }
 
     /**
-     * =======================
+     *  =======================
      *  ==== Perorm Upkeep ====
      *  =======================
      */
@@ -170,5 +171,20 @@ contract TestRaffle is Test {
         Raffle.RaffleState rState = raffle.getState();
         assertGt(requestId, 0);
         assertEq(uint256(rState), 1);
+    }
+
+    /**
+     *  ==============================
+     *  ==== Fulfill Random Words ====
+     *  ==============================
+     */
+    function testFulfillRandomWordsCanOnlyBeCalledAfterPerfomUpkeep() public {
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: 1 ether}();
+        vm.warp(block.timestamp + interval + 1);
+        vm.roll(block.number + 1);
+
+        vm.expectRevert(VRFCoordinatorV2_5Mock.InvalidRequest.selector);
+        VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(0, address(raffle));
     }
 }
