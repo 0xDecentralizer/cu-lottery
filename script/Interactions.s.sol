@@ -56,7 +56,7 @@ contract FundSubscription is Script, HelperConfig {
         if (block.chainid == LOCAL_CHAIN_ID) {
             console.log("sub Id is: ", subscriptionId);
             vm.startBroadcast();
-            VRFCoordinatorV2_5Mock(vrfCoordinator).fundSubscription(subscriptionId, 3 ether);
+            VRFCoordinatorV2_5Mock(vrfCoordinator).fundSubscription(subscriptionId, 3 ether * 1000);
             vm.stopBroadcast();
         } else if (block.chainid == SEPOLIA_CHAIN_ID) {
             vm.startBroadcast();
